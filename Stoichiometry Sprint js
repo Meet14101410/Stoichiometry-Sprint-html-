@@ -1,0 +1,48 @@
+// Stoichiometry Sprint - short JS
+(() => {
+  const problems = [
+    {q:'If 2.00 mol H2 reacts with O2 to form H2O (2H2 + O2 → 2H2O). How many moles of H2O form?', a:2.00},
+    {q:'From 3.00 mol Fe and excess O2, in 4Fe + 3O2 → 2Fe2O3, how many moles of Fe2O3 form?', a:1.50},
+    {q:'If 0.50 mol C reacts with O2, in C + O2 → CO2, moles CO2 produced?', a:0.50},
+    {q:'From 5.00 mol N2 and excess H2, in N2 + 3H2 → 2NH3, how many moles NH3 form?', a:10.00},
+    {q:'If 0.75 mol CaCO3 decomposes to CaO + CO2, moles CO2 produced?', a:0.75}
+  ];
+
+  let idx = 0, score = 0, timeLeft = 60, timerId;
+  const el = id => document.getElementById(id);
+  const qEl = el('question'), ansEl = el('answer'), fb = el('feedback');
+  const scoreEl = el('score'), timerEl = el('timer');
+  const submitBtn = el('submit');
+
+  function formatNum(n){ return Math.round(n*100)/100; }
+
+  function load(){
+    if(idx >= problems.length) idx = 0;
+    qEl.textContent = problems[idx].q;
+    ansEl.value = '';
+    ansEl.focus();
+    fb.textContent = '';
+  }
+
+  function evaluate(){
+    const v = parseFloat(ansEl.value);
+    if(Number.isNaN(v)){ fb.textContent = 'Please enter a number.'; return; }
+    const correct = formatNum(problems[idx].a);
+    const user = formatNum(v);
+    if(user === correct){ score += 10; fb.textContent = 'Correct! +10'; }
+    else { score = Math.max(0, score - 5); fb.textContent = `Wrong — correct ${correct.toFixed(2)} (-5)`; }
+    scoreEl.textContent = `Score: ${score}`;
+    idx = (idx + 1) % problems.length;
+    load();
+  }
+
+  submitBtn.addEventListener('click', evaluate);
+  ansEl.addEventListener('keydown', e => { if(e.key === 'Enter') evaluate(); });
+
+  function tick(){
+    timeLeft--; timerEl.textContent = `Time: ${timeLeft}s`;
+    if(timeLeft <= 0){ clearInterval(timerId); end(); }
+  }
+
+  function end(){
+    submitBtn.disabled = true; ansE

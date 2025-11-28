@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stoichiometry Sprint</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;background:#0f172a;color:#e6eef8;display:flex;align-items:center;justify-content:center;height:100vh}
+    .card{width:360px;background:#0b1220;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,.6)}
+    h1{margin:0 0 10px;font-size:20px;text-align:center}
+    .question{background:#071029;padding:12px;border-radius:8px;margin-bottom:10px}
+    input{width:100%;padding:8px;border-radius:6px;border:1px solid #16324a;background:#071827;color:#e6eef8}
+    button{width:100%;padding:10px;border-radius:8px;border:0;margin-top:8px;background:#2563eb;color:white;font-weight:600}
+    .meta{display:flex;justify-content:space-between;font-size:13px;margin-top:10px;color:#9fb3cf}
+    .feedback{margin-top:8px;height:22px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Stoichiometry Sprint</h1>
+    <div class="meta"><span id="score">Score: 0</span><span id="timer">Time: 60s</span></div>
+    <div class="question" id="question">Loading…</div>
+    <input id="answer" placeholder="Type numeric answer (e.g. 2.00)" autocomplete="off" />
+    <button id="submit">Submit Answer</button>
+    <div class="feedback" id="feedback"></div>
+    <div style="font-size:12px;margin-top:8px;color:#a8c0da">Tip: solve mol → mol conversions from balanced equations. Round to 2 decimal places.</div>
+  </div>
+
+  <script>
+    const problems = [
+      {q:'If 2.00 mol H2 reacts with O2 to form H2O (balanced: 2H2 + O2 → 2H2O). How many moles of H2O form?', a:2.00},
+      {q:'From 3.00 mol Fe and excess O2, in 4Fe + 3O2 → 2Fe2O3, how many moles of Fe2O3 form?', a:1.50},
+      {q:'If 0.50 mol C reacts with O2, in C + O2 → CO2, moles CO2 produced?', a:0.50},
+      {q:'From 5.00 mol N2 and excess H2, in N2 + 3H2 → 2NH3, how many moles NH3 form?', a:10.00/1},
+      {q:'If 0.75 mol CaCO3 decomposes to CaO + CO2, moles CO2 produced?', a:0.75}
+    ];
+
+    let index=0, score=0, timeLeft=60;
+    const qEl=document.getElementById('question'), ans=document.getElementById('answer'), fb=document.getElementById('feedback');
+    const scoreEl=document.getElementById('score'), timerEl=document.getElementById('timer');
+
+    function loadProblem(){
+      if(index>=problems.length){index=0}
+      qEl.textContent = problems[index].q;
+      ans.value=''; ans.focus(); fb.textContent='';
+    }
+
+    function checkAnswer(){
+      const user = parseFloat(ans.value);
+      if(isNaN(user)){fb.textContent='Please enter a number.';return}
+      const correct = Math.round(problems[index].a*100)/100;
+      const usr = Math.round(user*100)/100;
+      if(usr === correct){ score += 10; fb.textContent='Correct! +10'; }
+      else { score = Math.max(0, score-5); fb.textContent=`Wrong — correct ${correct.toFixed(2)} (-5)` }
+      scoreEl.textContent = `Score: ${score}`;
+      index = (index+1) % problems.length;
+      loadProblem();
+    }
+
+    document.getElementById('submit').addEventListener('click', checkAnswer);
+    ans.addEventListener('keydown', e=>{ if(e.key==='Enter') checkAnswer(); });
+
+    // timer
+    const t = setInterval(()=>{
+      timeLeft--; timerEl.textContent = `Time: ${timeLeft}s`;
+      if(timeLeft<=0){ clearInterval(t); endGame(); }
+    },1000);
+
+    function endGame(){
+      document.getElementById('submit').disabled=true; ans.disabled=true; qEl.textContent='Time up!'; fb.textContent=`Final score: ${score}`;
+    }
+
+    // initial
+    loadProblem();
+  </script>
+</body>
+</html>
